@@ -1,0 +1,24 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+Link	src/main.rs	/^enum Link {$/;"	g
+fmt	src/main.rs	/^    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {$/;"	f
+get_all_links_from_file	src/main.rs	/^    fn get_all_links_from_file() {$/;"	f
+get_broken_links_from_file	src/main.rs	/^fn get_broken_links_from_file(p: &PathBuf) -> Vec<Link> {$/;"	f
+get_links_from_file	src/main.rs	/^fn get_links_from_file(p: &PathBuf) -> Vec<String> {$/;"	f
+is_local_link	src/main.rs	/^fn is_local_link(s: &str) -> bool {$/;"	f
+is_valid_local_link	src/main.rs	/^fn is_valid_local_link(l: &str) -> bool {$/;"	f
+is_valid_web_link	src/main.rs	/^fn is_valid_web_link(l: &str) -> bool {$/;"	f
+is_web_link	src/main.rs	/^fn is_web_link(s: &str) -> bool {$/;"	f
+main	src/main.rs	/^fn main() {$/;"	f
+ref	src/main.rs	/^        static ref RE_URL: Regex = Regex::new($/;"	c
+similar_filename_to	src/main.rs	/^fn similar_filename_to(s: String) -> String {$/;"	f
+std::fmt::Display for Link	src/main.rs	/^impl std::fmt::Display for Link {$/;"	i
+test	src/main.rs	/^mod test {$/;"	m
+verify_link_is_local_link	src/main.rs	/^    fn verify_link_is_local_link() {$/;"	f
+verify_link_is_web_link	src/main.rs	/^    fn verify_link_is_web_link() {$/;"	f
+verify_local_link_exists	src/main.rs	/^    fn verify_local_link_exists() {$/;"	f
+verify_web_link_is_alive	src/main.rs	/^    fn verify_web_link_is_alive() {$/;"	f
