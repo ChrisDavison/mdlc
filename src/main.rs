@@ -1,143 +1,161 @@
 #![allow(unused_variables, dead_code)]
-use std::collections::HashMap;
 use std::path::PathBuf;
 
-use regex::Regex;
+use glob::glob;
+use structopt::StructOpt;
 
 #[macro_use]
 extern crate lazy_static;
 
-enum Link {
-    Web(String),
-    Local(String),
+type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+
+#[derive(StructOpt, Debug)]
+struct Opts {
+    /// Files to check links in
+    files: Vec<std::path::PathBuf>,
+
+    /// Only check local links
+    #[structopt(short, long)]
+    local: bool,
+
+    /// Only check web links
+    #[structopt(short, long)]
+    web: bool,
 }
 
-impl std::fmt::Display for Link {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match &self {
-            Link::Web(s) => write!(f, "{}", s),
-            Link::Local(s) => {
-                let out = format!("{}\n\t{}", s, similar_filename_to(s.to_string()));
-                write!(f, "{}", out)
+fn main() -> Result<()> {
+    let args = Opts::from_args();
+    let files = if args.files.is_empty() {
+        get_md_files_in_curdir()?
+    } else {
+        args.files
+    };
+    for filename in files {
+        let lt = if args.local {
+            Some(links::LinkType::Local)
+        } else if args.web {
+            Some(links::LinkType::Web)
+        } else {
+            None
+        };
+        let links: Vec<links::Link> = links::from_file(&filename, lt)
+            .iter()
+            .filter(|l| !l.is_alive())
+            .map(|x| x.to_owned())
+            .collect();
+
+        let fn_str = filename.to_string_lossy().to_string();
+
+        for link in links {
+            println!("{}:{}", fn_str, link.text);
+        }
+    }
+    Ok(())
+}
+
+/// Glob for markdown files under the current working directory
+fn get_md_files_in_curdir() -> Result<Vec<PathBuf>> {
+    Ok(glob("**/*.md")?
+        .filter(|x| x.is_ok())
+        .map(|x| x.expect("Already tested each glob is ok"))
+        .collect())
+}
+
+mod links {
+    use regex::Regex;
+    use std::collections::HashSet;
+    use std::path::PathBuf;
+
+    #[derive(Eq, PartialEq, Debug, Clone)]
+    pub enum LinkType {
+        Web,
+        Local,
+    }
+
+    #[derive(Debug, Clone)]
+    pub struct Link {
+        pub text: String,
+        source: String,
+        linktype: LinkType,
+    }
+
+    pub fn from_file(filename: &PathBuf, linktype: Option<LinkType>) -> Vec<Link> {
+        lazy_static! {
+            static ref RE_WEB: Regex = Regex::new(
+                r#"(https+://)*[-a-zA-Z0-9@:%._/\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-a-zA-Z0-9@:%_\+.~#?&//=]*"#
+            )
+            .unwrap();
+            static ref RE_LOCAL: Regex = Regex::new(r#"\((?:\./)*([a-zA-Z0-9\-_ ]*?\.md)"#).unwrap();
+        }
+        let contents = std::fs::read_to_string(filename).unwrap();
+        let mut links = Vec::new();
+        let fn_str = filename.to_string_lossy().to_string();
+        let mut seen = HashSet::new();
+
+        if linktype == None || linktype == Some(LinkType::Local) {
+            for cap in RE_LOCAL.captures_iter(&contents) {
+                let linktext: String = cap[0][1..].into();
+                if seen.contains(&linktext) {
+                    continue;
+                } else {
+                    seen.insert(linktext.clone());
+                }
+                links.push(Link {
+                    text: linktext.clone(),
+                    linktype: LinkType::Local,
+                    source: fn_str.clone(),
+                });
             }
         }
-    }
-}
 
-fn main() {
-    println!("Hello, world!");
-    let mut files_and_broken_links: HashMap<String, Vec<Link>> = HashMap::new();
-    let filenames: Vec<PathBuf> = Vec::new();
-    for filename in filenames {
-        let broken = get_broken_links_from_file(&filename);
-        if !broken.is_empty() {
-            files_and_broken_links.insert(filename.to_string_lossy().to_string(), broken);
-        }
-    }
-    for (filename, broken_links) in files_and_broken_links {
-        println!("{}", filename);
-        for link in broken_links {
-            println!("{}", link);
-        }
-    }
-}
-
-fn similar_filename_to(s: String) -> String {
-    unimplemented!()
-}
-
-fn get_links_from_file(p: &PathBuf) -> Vec<String> {
-    lazy_static! {
-        static ref RE_URL: Regex = Regex::new(
-            r#"(https+://)*[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-a-zA-Z0-9@:%_\+.~#?&//=]*"#
-        )
-        .unwrap();
-    }
-    let contents = std::fs::read_to_string(p).unwrap();
-    let mut links = Vec::new();
-    for line in contents.split("\n") {
-        if RE_URL.is_match(line) {
-            let l: Vec<String> = RE_URL
-                .captures_iter(line)
-                .map(|x| x[0].to_string().clone())
-                .map(|x| x.to_owned())
-                .collect();
-            links.extend(l);
-        }
-    }
-    links
-}
-
-fn get_broken_links_from_file(p: &PathBuf) -> Vec<Link> {
-    let links = get_links_from_file(p);
-    let mut broken_links = Vec::new();
-    for link in links {
-        if is_local_link(&link) {
-            if !is_valid_local_link(&link) {
-                broken_links.push(Link::Local(link));
+        if linktype == None || linktype == Some(LinkType::Web) {
+            for cap in RE_WEB.captures_iter(&contents) {
+                let linktext: String = cap[0][1..].into();
+                if seen.contains(&linktext) {
+                    continue;
+                } else {
+                    seen.insert(linktext.clone());
+                }
+                links.push(Link {
+                    text: linktext.clone(),
+                    linktype: LinkType::Web,
+                    source: fn_str.clone(),
+                });
             }
-        } else if !is_valid_web_link(&link) {
-            broken_links.push(Link::Web(link));
         }
+        links
     }
-    broken_links
-}
 
-fn is_local_link(s: &str) -> bool {
-    unimplemented!()
-}
-
-fn is_web_link(s: &str) -> bool {
-    unimplemented!()
-}
-
-fn is_valid_local_link(l: &str) -> bool {
-    let p = PathBuf::from(l);
-    p.exists()
-}
-
-fn is_valid_web_link(l: &str) -> bool {
-    unimplemented!()
-}
-
-mod test {
-    use super::*;
-
-    #[test]
-    fn verify_link_is_local_link() {
-        let tests = vec!["./test.md"];
-        for test in tests {
-            assert_eq!(is_local_link(test), true);
+    impl Link {
+        pub fn is_alive(&self) -> bool {
+            if self.linktype == LinkType::Local {
+                self.is_valid_local_link()
+            } else {
+                self.is_valid_web_link()
+            }
         }
-    }
 
-    #[test]
-    fn verify_link_is_web_link() {
-        let tests = vec!["www.google.com", "https://www.stat.us/200"];
-        for test in tests {
-            assert_eq!(is_web_link(test), true);
+        pub fn is_local(&self) -> bool {
+            self.linktype == LinkType::Local
         }
-    }
 
-    #[test]
-    fn verify_web_link_is_alive() {
-        assert_eq!(is_valid_web_link("https://www.google.com"), true);
-    }
+        pub fn is_web(&self) -> bool {
+            self.linktype == LinkType::Web
+        }
 
-    #[test]
-    fn verify_local_link_exists() {
-        assert_eq!(is_valid_local_link("./test/test.md"), true);
-    }
+        fn is_valid_local_link(&self) -> bool {
+            let source = std::path::PathBuf::from(&self.source);
+            let parent = source.parent().unwrap();
+            let p = parent.join(&self.text).canonicalize();
+            if let Err(e) = p {
+                false
+            } else {
+                p.unwrap().exists()
+            }
+        }
 
-    #[test]
-    fn get_all_links_from_file() {
-        let testfile = PathBuf::from("./test/test.md");
-        let links: Vec<&str> = vec![
-            "https://www.google.com",
-            "https://www.google.com",
-            "https://www.one.com",
-            "https://www.two.com",
-        ];
-        assert_eq!(links, get_links_from_file(&testfile));
+        fn is_valid_web_link(&self) -> bool {
+            unimplemented!()
+        }
     }
 }

@@ -4,21 +4,20 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.9~svn20110310	//
-Link	src/main.rs	/^enum Link {$/;"	g
-fmt	src/main.rs	/^    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {$/;"	f
-get_all_links_from_file	src/main.rs	/^    fn get_all_links_from_file() {$/;"	f
-get_broken_links_from_file	src/main.rs	/^fn get_broken_links_from_file(p: &PathBuf) -> Vec<Link> {$/;"	f
-get_links_from_file	src/main.rs	/^fn get_links_from_file(p: &PathBuf) -> Vec<String> {$/;"	f
-is_local_link	src/main.rs	/^fn is_local_link(s: &str) -> bool {$/;"	f
-is_valid_local_link	src/main.rs	/^fn is_valid_local_link(l: &str) -> bool {$/;"	f
-is_valid_web_link	src/main.rs	/^fn is_valid_web_link(l: &str) -> bool {$/;"	f
-is_web_link	src/main.rs	/^fn is_web_link(s: &str) -> bool {$/;"	f
-main	src/main.rs	/^fn main() {$/;"	f
-ref	src/main.rs	/^        static ref RE_URL: Regex = Regex::new($/;"	c
-similar_filename_to	src/main.rs	/^fn similar_filename_to(s: String) -> String {$/;"	f
-std::fmt::Display for Link	src/main.rs	/^impl std::fmt::Display for Link {$/;"	i
-test	src/main.rs	/^mod test {$/;"	m
-verify_link_is_local_link	src/main.rs	/^    fn verify_link_is_local_link() {$/;"	f
-verify_link_is_web_link	src/main.rs	/^    fn verify_link_is_web_link() {$/;"	f
-verify_local_link_exists	src/main.rs	/^    fn verify_local_link_exists() {$/;"	f
-verify_web_link_is_alive	src/main.rs	/^    fn verify_web_link_is_alive() {$/;"	f
+LINK Two	test/test.md	/^[One](https:\/\/www.one.com) and [Two](https:\/\/www.two.com)$/;"	r
+Link	src/main.rs	/^    impl Link {$/;"	i
+Link	src/main.rs	/^    pub struct Link {$/;"	T
+LinkType	src/main.rs	/^    pub enum LinkType {$/;"	T
+Opts	src/main.rs	/^struct Opts {$/;"	T
+Result	src/main.rs	/^type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;$/;"	T
+TODO	README.md	/^## TODO$/;"	r
+from_file	src/main.rs	/^    pub fn from_file(filename: &PathBuf, linktype: Option<LinkType>) -> Vec<Link> {$/;"	f
+get_md_files_in_curdir	src/main.rs	/^fn get_md_files_in_curdir() -> Result<Vec<PathBuf>> {$/;"	f
+is_alive	src/main.rs	/^        pub fn is_alive(&self) -> bool {$/;"	f
+is_local	src/main.rs	/^        pub fn is_local(&self) -> bool {$/;"	f
+is_valid_local_link	src/main.rs	/^        fn is_valid_local_link(&self) -> bool {$/;"	f
+is_valid_web_link	src/main.rs	/^        fn is_valid_web_link(&self) -> bool {$/;"	f
+is_web	src/main.rs	/^        pub fn is_web(&self) -> bool {$/;"	f
+links	src/main.rs	/^mod links {$/;"	M
+main	src/main.rs	/^fn main() -> Result<()> {$/;"	f
+mdlc - Markdown Link Checker	README.md	/^# mdlc - Markdown Link Checker$/;"	h

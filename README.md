@@ -12,3 +12,5 @@ The aim of this tool is to read in all parsed markdown files, extract all links 
 - Per-file, report:
     - Broken web links
     - Broken local links (optionally with most likely similar file, if similarity above a threshold)
+
+[Readme](./README.md)

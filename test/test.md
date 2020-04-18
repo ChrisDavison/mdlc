@@ -3,3 +3,5 @@
 [Another]: https://www.google.com
 
 [One](https://www.one.com) and [Two](https://www.two.com)
+
+[Local](../README.md)
