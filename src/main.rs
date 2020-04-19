@@ -47,7 +47,7 @@ fn main() -> Result<()> {
         let fn_str = filename.to_string_lossy().to_string();
 
         for link in links {
-            println!("{}:{}", fn_str, link.text);
+            println!("{}:{:?}:{}", fn_str, link.linktype, link.text);
         }
     }
     Ok(())
@@ -76,7 +76,7 @@ mod links {
     pub struct Link {
         pub text: String,
         source: String,
-        linktype: LinkType,
+        pub linktype: LinkType,
     }
 
     pub fn from_file(filename: &PathBuf, linktype: Option<LinkType>) -> Vec<Link> {
@@ -85,7 +85,7 @@ mod links {
                 r#"(https+://)*[-a-zA-Z0-9@:%._/\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-a-zA-Z0-9@:%_\+.~#?&//=]*"#
             )
             .unwrap();
-            static ref RE_LOCAL: Regex = Regex::new(r#"\((?:\./)*([a-zA-Z0-9\-_ ]*?\.md)"#).unwrap();
+            static ref RE_LOCAL: Regex = Regex::new(r#"\((?:\.+/)*([a-zA-Z0-9\-_ ]*?\.md)"#).unwrap();
         }
         let contents = std::fs::read_to_string(filename).unwrap();
         let mut links = Vec::new();
@@ -94,7 +94,11 @@ mod links {
 
         if linktype == None || linktype == Some(LinkType::Local) {
             for cap in RE_LOCAL.captures_iter(&contents) {
-                let linktext: String = cap[0][1..].into();
+                let linktext: String = if cap[0].starts_with("(") {
+                    cap[0][1..].into()
+                } else {
+                    cap[0].into()
+                };
                 if seen.contains(&linktext) {
                     continue;
                 } else {
@@ -110,7 +114,7 @@ mod links {
 
         if linktype == None || linktype == Some(LinkType::Web) {
             for cap in RE_WEB.captures_iter(&contents) {
-                let linktext: String = cap[0][1..].into();
+                let linktext: String = cap[0].into();
                 if seen.contains(&linktext) {
                     continue;
                 } else {
@@ -155,7 +159,10 @@ mod links {
         }
 
         fn is_valid_web_link(&self) -> bool {
-            unimplemented!()
+            match reqwest::blocking::get(&self.text) {
+                Ok(resp) => resp.status() == 200,
+                Err(e) => false,
+            }
         }
     }
 }
