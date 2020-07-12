@@ -44,7 +44,7 @@ fn main() -> Result<()> {
             if !(linkfilter == None || link.linktype == linkfilter.unwrap()) {
                 continue
             }
-            if link.is_alive() {
+            if !link.is_alive() {
                 links.push(link);
             }
         }
