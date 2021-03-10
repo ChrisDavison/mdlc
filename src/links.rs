@@ -27,7 +27,7 @@ pub fn from_file(filename: &str) -> Vec<Link> {
     let mut seen = HashSet::new();
 
     for cap in RE_LOCAL.captures_iter(&contents) {
-        let linktext: String = if cap[0].starts_with("(") {
+        let linktext: String = if cap[0].starts_with('(') {
             cap[0][1..].into()
         } else {
             cap[0].into()
