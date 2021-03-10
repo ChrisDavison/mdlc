@@ -1,6 +1,6 @@
 [package]
 name = "mdlc"
-version = "0.4.0"
+version = "0.5.0"
 authors = ["Chris Davison <c.jr.davison@gmail.com>"]
 edition = "2018"
 license = "GPL-3.0-only"
@@ -9,7 +9,17 @@ description = "Markdown Link Checker. Find broken web and local links."
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-lazy_static = "1.4.0"
-regex = "1.3.1"
+lazy_static = "~1.4"
+regex = "~1.3"
 glob = "0.3"
-reqwest = { version = "0.10", features=["blocking"]}
+reqwest = { version = "~0.10", features=["blocking"]}
+clap = ">2.3"
+anyhow = "~1.0"
+
+[lib]
+name="mdlc"
+path="src/lib.rs"
+
+[[bin]]
+name="mdlc"
+path="bin/main.rs"
