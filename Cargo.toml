@@ -4,6 +4,7 @@ version = "0.4.0"
 authors = ["Chris Davison <c.jr.davison@gmail.com>"]
 edition = "2018"
 license = "GPL-3.0-only"
+description = "Markdown Link Checker. Find broken web and local links."
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
