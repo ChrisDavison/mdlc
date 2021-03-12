@@ -1,5 +1,7 @@
 # mdlc - Markdown Link Checker
 
+[![Rust](https://github.com/ChrisDavison/mdlc/actions/workflows/rust.yml/badge.svg)](https://github.com/ChrisDavison/mdlc/actions/workflows/rust.yml)
+
 The aim of this tool is to read in all parsed markdown files, extract all links (both local, for files, and remote), and then report which of these links are broken.
 
 ## TODO
