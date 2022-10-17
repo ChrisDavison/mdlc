@@ -1,6 +1,6 @@
 [package]
 name = "mdlc"
-version = "0.6.0"
+version = "0.7.0"
 authors = ["Chris Davison <c.jr.davison@gmail.com>"]
 edition = "2018"
 license = "GPL-3.0-only"
@@ -15,6 +15,7 @@ glob = "0.3"
 reqwest = { version = "~0.10", features=["blocking"]}
 structopt="~0.3"
 anyhow = "~1.0"
+rayon = "~1.5"
 
 [lib]
 name="mdlc"

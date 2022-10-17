@@ -20,18 +20,17 @@ pub fn from_file(filename: &str) -> Vec<Link> {
             r#"(https+://)*[-a-zA-Z0-9@:%._/\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-a-zA-Z0-9@:%_\+.~#?&//=]*"#
         )
         .unwrap();
-        static ref RE_LOCAL: Regex = Regex::new(r#"\((?:\.+/)*([a-zA-Z0-9\-_ ]*?\.md)"#).unwrap();
+        static ref RE_MD: Regex = Regex::new(r#"\[.+?\](?:\(|: )(.+?.md)(?:\)*)"#).unwrap();
     }
     let contents = std::fs::read_to_string(filename).unwrap();
     let mut links = Vec::new();
     let mut seen = HashSet::new();
 
-    for cap in RE_LOCAL.captures_iter(&contents) {
-        let linktext: String = if cap[0].starts_with('(') {
-            cap[0][1..].into()
-        } else {
-            cap[0].into()
-        };
+    for cap in RE_MD.captures_iter(&contents) {
+        let linktext: String = cap[1].into();
+        if matches_heuristic(&linktext) {
+            continue;
+        }
         if seen.contains(&linktext) {
             continue;
         } else {
@@ -46,6 +45,9 @@ pub fn from_file(filename: &str) -> Vec<Link> {
 
     for cap in RE_WEB.captures_iter(&contents) {
         let linktext: String = cap[0].into();
+        if matches_heuristic(&linktext) {
+            continue;
+        }
         if seen.contains(&linktext) {
             continue;
         } else {
@@ -58,6 +60,21 @@ pub fn from_file(filename: &str) -> Vec<Link> {
         });
     }
     links
+}
+
+fn matches_heuristic(link: &str) -> bool {
+    let low = link.to_lowercase();
+    if link.contains("...") {
+        true
+    } else if low.contains("e.g.") {
+        true
+    } else if low.contains("i.e.") {
+        true
+    } else if low.contains("b.c.") {
+        true
+    } else {
+        false
+    }
 }
 
 impl Link {
@@ -85,5 +102,13 @@ impl Link {
             Ok(resp) => resp.status() == 200,
             Err(_e) => false,
         }
+    }
+}
+
+mod tests {
+
+    #[test]
+    fn test_link_identification() {
+        unimplemented!();
     }
 }

@@ -1,5 +1,6 @@
 use anyhow::Result;
 use glob::glob;
+use rayon::prelude::*;
 use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
@@ -22,6 +23,7 @@ fn main() -> Result<()> {
     } else {
         get_md_files_in_curdir()?
     };
+    dbg!(&files);
     let linkfilter = if args.local {
         Some(mdlc::LinkType::Local)
     } else if args.web {
@@ -30,16 +32,18 @@ fn main() -> Result<()> {
         None
     };
 
-    for filename in files {
-        for link in mdlc::from_file(&filename) {
+    files.par_iter().for_each(|filename| {
+        for link in mdlc::from_file(filename) {
             if !(linkfilter == None || link.linktype == linkfilter.unwrap()) {
                 continue;
             }
             if !link.is_alive() {
                 println!("{}:{:?}:{}", filename, link.linktype, link.text);
+            } else {
+                dbg!(link);
             }
         }
-    }
+    });
     Ok(())
 }
 
