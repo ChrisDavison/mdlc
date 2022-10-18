@@ -104,11 +104,3 @@ impl Link {
         }
     }
 }
-
-mod tests {
-
-    #[test]
-    fn test_link_identification() {
-        unimplemented!();
-    }
-}
