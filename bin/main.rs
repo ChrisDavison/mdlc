@@ -23,7 +23,6 @@ fn main() -> Result<()> {
     } else {
         get_md_files_in_curdir()?
     };
-    dbg!(&files);
     let linkfilter = if args.local {
         Some(mdlc::LinkType::Local)
     } else if args.web {
@@ -39,8 +38,6 @@ fn main() -> Result<()> {
             }
             if !link.is_alive() {
                 println!("{}:{:?}:{}", filename, link.linktype, link.text);
-            } else {
-                dbg!(link);
             }
         }
     });
