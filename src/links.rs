@@ -17,7 +17,7 @@ pub struct Link {
 pub fn from_file(filename: &str) -> Vec<Link> {
     lazy_static! {
         static ref RE_WEB: Regex = Regex::new(
-            r#"(https+://)*[-a-zA-Z0-9@:%._/\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-a-zA-Z0-9@:%_\+.~#?&//=]*"#
+            r#"(?:https?://|ftp://|news://|mailto:|\bwww\.)[a-zA-Z0-9\-@;/?:&=%\$_.+!*\x27,~#]*(\([a-zA-Z0-9\-@;/?:&=%\$_.+!*\x27,~#]*\)|[a-zA-Z0-9\-@;/?:&=%\$_+*~])+"#,
         )
         .unwrap();
         static ref RE_MD: Regex = Regex::new(r#"\[.+?\](?:\(|: )(.+?.md)(?:\)*)"#).unwrap();
